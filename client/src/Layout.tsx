@@ -1,13 +1,12 @@
 import { Outlet } from "react-router-dom";
 import "./App.css";
-import ConnectionButtons from "./components/ConnectionButtons";
+import TopBar from "./components/TopBar";
 
 function Layout() {
   return (
     <div>
-      <ConnectionButtons />
       <header>
-        <h1>FINQZ</h1>
+        <TopBar />
       </header>
       <main>
         <Outlet />

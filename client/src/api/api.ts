@@ -1,0 +1,31 @@
+const API_URL = 'http://localhost:5000/api'; // Adjust this base URL as needed
+
+/**
+ * Registers client with the server by sending clientId and socketId
+ * @param clientId - The client's unique identifier
+ * @param socketId - The socket connection ID
+ * @returns Promise with the response data
+ */
+export const registerClient = async (clientId: string, socketId: string) => {
+  try {
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        clientId,
+        socketId,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to register client:', error);
+    throw error;
+  }
+};

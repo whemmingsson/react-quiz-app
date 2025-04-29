@@ -7,6 +7,7 @@ import UserService from "./services/UserService.js";
 import SessionService from "./services/SessionService.js";
 import UserJoinEventData  from "@common/UserJoinEventData.js";
 import {instrument} from "@socket.io/admin-ui";
+import cors from "cors"; // Add this import for CORS middleware
 
 const app = express();
 const server = createServer(app);
@@ -34,6 +35,15 @@ const clientBuildPath = path.join(__dirname, "..", "client", "dist");
 // Serve static files from React's build folder
 app.use(express.static(clientBuildPath));
 
+app.use(express.json());
+
+// Add CORS middleware configuration for Express
+app.use(cors({
+  origin: ["http://localhost:5173"],
+  methods: ["GET", "POST"],
+  credentials: true
+}));
+
 // Handle React routing, return index.html for all other routes, unless client routed
 app.get("*", (_, res) => {
   res.sendFile(path.join(clientBuildPath, "index.html"));
@@ -43,6 +53,42 @@ app.get("*", (_, res) => {
 const userService = new UserService();
 const sessionService = new SessionService(); 
 
+// API endpoints
+// API endpoint for client registration
+
+
+type RegisterClientBody = express.Request<{}, {}, {   clientId: string;
+  socketId: string; }>;
+
+app.post('/api/register', (req:RegisterClientBody, res:any) => {
+  try {
+    const { clientId, socketId } = req.body;
+    
+    if (!clientId || !socketId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Both clientId and socketId are required' 
+      });
+    }
+    
+    // Call the user service function (which you'll implement)
+    // This is a placeholder - you'll need to implement this method in UserService
+    const result = userService.registerClient(clientId, socketId);
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Client registered successfully',
+      data: result
+    });
+  } catch (error) {
+    console.error('Error registering client:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error during registration'
+    });
+  }
+});
+
 io.on("connection", (socket) => {
   // Create user
   userService.createUser(socket.id);
@@ -51,57 +97,30 @@ io.on("connection", (socket) => {
   // Run when a user disconnects from the socket
   socket.on("disconnect", () => {
     userService.deleteUser(socket.id);
-    console.log("a user disconnected:", socket.id);
   });
+
+  // Add to your socket.io connection handler in server.ts
+socket.on("manual-disconnect", (clientId, callback) => {
+  console.log(`User with clientId ${clientId} manually disconnected`);
+  // Any cleanup you want to do when user manually disconnects
+  userService.deleteUser(socket.id);
+  callback(); // Acknowledge the event
+});
 
   // Run when a user requests to join a session
   socket.on("userjoin", (clientJoinData:UserJoinEventData, callback) => {
-    const { socketId, sessionId, userName } = clientJoinData;
-    const user = userService.getUser(socket.id);
-    console.log("name", userName);
 
-    if (user) {
-      sessionService.addAsPlayer(sessionId, user, userName, socketId);
-      callback(0);
-      socket.broadcast.emit("userjoined", socketId);
-    }
-    else {
-      console.log(`User with clientId = ${socketId} not found`);
-    }
   });
 
   // Run when a user requests to start a session
   // The user is promoted admin
   socket.on("start-session", (clientJoinData: UserJoinEventData, callback) => {
-    console.log("start-session", clientJoinData); 
-    const { socketId, userName } = clientJoinData;
-    const session = sessionService.createSession(socketId);
-    const user = userService.getUser(socket.id); 
 
-    if (!user) {
-      console.log(`User with socketId = ${socketId} not found`);
-      return;
-    }
-
-    sessionService.addAsAdmin(session, user, userName);
-
-    console.log(`Session with id = ${socketId} started`);
-    console.log(`User with clientId = ${socketId} promoted to admin`);
-
-    // Notify all users that a session has started
-    socket.broadcast.emit("session", socketId);
   });
 
   // Run when the session admin requests to kill a session
   socket.on("kill-session", (socketId, callback) => {
-    const session = sessionService.killSession(socketId);
-
-    if (!session) {
-      console.log(`Session with id = ${socketId} not found`);
-      return;
-    }
-
-    socket.broadcast.emit("sessionkilled", socketId);
+   
   });
 
   // When a super admin requests the server state

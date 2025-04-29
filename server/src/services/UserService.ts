@@ -1,6 +1,8 @@
-import User from "../types/User";
+import User from "@common/user";
+
 
 class UserService {
+
     users: User[];
     /**
      *
@@ -41,6 +43,14 @@ class UserService {
     public getUsers():User[] {
         return this.users;
     }
+
+    public registerClient(clientId: any, socketId: any) {
+        const user = this.getUser(socketId);
+        if(user){
+            user.clientId = clientId;
+            return user;
+        }
+      }
 }
 
 export default UserService;

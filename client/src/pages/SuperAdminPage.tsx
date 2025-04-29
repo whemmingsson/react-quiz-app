@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { socket } from "../socket";
-import { User } from "../types/user";
-import { QSession } from "../types/session";
+import User from "@common/user";
 
 interface ServerState {
   users: User[];
-  sessions: QSession[];
+  //sessions: QSession[];
 }
 
 const SuperAdminPage = () => {
   const [serverUsers, setServerUsers] = useState<User[]>([]);
-  const [serverSessions, setServerSessions] = useState<QSession[]>([]);
   const fetchServerState = () => {
     socket
       .timeout(3000)
@@ -24,10 +22,6 @@ const SuperAdminPage = () => {
 
         if (data && data.users) {
           setServerUsers(data.users);
-        }
-
-        if (data && data.sessions) {
-          setServerSessions(data.sessions);
         }
       });
   };
@@ -48,26 +42,7 @@ const SuperAdminPage = () => {
           ))}
         </ul>
       </div>
-      <div>
-        <h4>Sessions</h4>
-        <ul>
-          {serverSessions.map((session) => (
-            <li key={session.id}>
-              {session.id} <button>Kill</button>
-              <div>
-                <h5>Users</h5>
-                <ul>
-                  {session.users?.map((user) => (
-                    <li key={user.id}>
-                      {user.id} - {user.isAdmin ? "Admin" : "User"}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div></div>
       <div
         style={{
           background: "#ffdddd",
