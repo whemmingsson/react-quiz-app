@@ -1,7 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { socket } from "../socket";
 import { QuizContext } from "../context/QuizContext";
+import { saveUsername } from "../api/api";
 
 const TopBarContainer = styled.div`
   position: fixed;
@@ -59,10 +60,21 @@ const UsernameInput = styled.input`
   border-radius: 4px;
 `;
 
+const SaveButton = styled(Button)`
+  background-color: #2196f3;
+  margin-left: 4px;
+`;
+
+const UsernameContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const TopBar = () => {
   const { clientId, isConnected, setIsConnected } =
     useContext(QuizContext) ?? {};
   const [username, setUsername] = useState<string>("Anonymous");
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleReconnect = () => {
     // Simple page refresh will trigger socket reconnection
@@ -78,8 +90,34 @@ const TopBar = () => {
     });
   };
 
+  // Load username from session storage when component mounts
+  useEffect(() => {
+    const storedUsername = sessionStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value);
+  };
+
+  const handleSaveUsername = async () => {
+    if (!isConnected || !clientId || !username.trim()) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await saveUsername(clientId, username.trim());
+      // Save username to session storage
+      sessionStorage.setItem("username", username.trim());
+      console.log("Username saved successfully");
+    } catch (error) {
+      console.error("Error saving username:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -96,12 +134,21 @@ const TopBar = () => {
           <strong>Client ID:</strong> {clientId || "Not assigned"}
         </InfoItem>
         <InfoItem>
-          <UsernameInput
-            type="text"
-            value={username}
-            onChange={handleUsernameChange}
-            placeholder="Username"
-          />
+          <UsernameContainer>
+            <UsernameInput
+              type="text"
+              value={username}
+              onChange={handleUsernameChange}
+              placeholder="Username"
+              disabled={!isConnected || !clientId}
+            />
+            <SaveButton
+              onClick={handleSaveUsername}
+              disabled={!isConnected || !clientId || isSaving}
+            >
+              {isSaving ? "Saving..." : "Save"}
+            </SaveButton>
+          </UsernameContainer>
         </InfoItem>
       </InfoSection>
 

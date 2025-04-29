@@ -40,6 +40,14 @@ class UserService {
         return null;
     }
 
+    public getUserByClientId(clientId:string):User | null {
+        const user = this.users.find(u => u.clientId === clientId);
+        if(user){
+            return user;
+        }
+        return null;
+    }
+
     public getUsers():User[] {
         return this.users;
     }
@@ -51,6 +59,15 @@ class UserService {
             return user;
         }
       }
+
+    public setUsername(clientId: string, username: string) {
+        const user = this.getUserByClientId(clientId);
+        if(user){
+            user.name = username;
+            return user;
+        }
+    }
+  
 }
 
 export default UserService;

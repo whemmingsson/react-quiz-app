@@ -29,3 +29,33 @@ export const registerClient = async (clientId: string, socketId: string) => {
     throw error;
   }
 };
+
+/**
+ * Save username for a client
+ * @param clientId The client's unique identifier
+ * @param username The username to save
+ * @returns Promise with response data
+ */
+export const saveUsername = async (clientId: string, username: string) => {
+    try {
+      const response = await fetch(`${API_URL}/username`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clientId,
+          username: username.trim(),
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error("Error saving username:", error);
+      throw error;
+    }
+  };

@@ -89,6 +89,42 @@ app.post('/api/register', (req:RegisterClientBody, res:any) => {
   }
 });
 
+// API endpoint for setting username
+interface SetUsernameRequestBody {
+  clientId: string;
+  username: string;
+}
+app.post('/api/username', (
+  req: express.Request<{}, {}, SetUsernameRequestBody>, 
+  res: any) =>{
+  try {
+    const { clientId, username } = req.body;
+    
+    if (!clientId || !username) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Both clientId and username are required' 
+      });
+    }
+    
+    // Call the user service function to save the username
+    // This is a placeholder - you'll need to implement this method
+    const result = userService.setUsername(clientId, username);
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Username saved successfully',
+      data: result
+    });
+  } catch (error) {
+    console.error('Error saving username:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error while saving username'
+    });
+  }
+});
+
 io.on("connection", (socket) => {
   // Create user
   userService.createUser(socket.id);
