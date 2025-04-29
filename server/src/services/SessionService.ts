@@ -1,5 +1,6 @@
-import Session from "../types/Session";
-import User from "../types/User";
+import Session from "@common/Session";
+import User from "@common/User";
+
 
 class SessionService {
     sessions: Session[];

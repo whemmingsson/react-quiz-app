@@ -27,6 +27,8 @@ const InfoSection = styled.div`
 `;
 
 const InfoItem = styled.div`
+  display: flex;
+  align-items: center;
   strong {
     margin-right: 4px;
   }

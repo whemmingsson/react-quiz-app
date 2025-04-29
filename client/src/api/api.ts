@@ -59,3 +59,52 @@ export const saveUsername = async (clientId: string, username: string) => {
       throw error;
     }
   };
+
+  /**
+ * Retrieve all active quiz sessions from the server
+ * @returns Promise with array of Session objects
+ */
+export const getActiveSessions = async () => {
+    try {
+      const response = await fetch(`${API_URL}/sessions`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching active sessions:", error);
+      throw error;
+    }
+  };
+
+  
+  /**
+ * Retrieve all quizzes
+ * @returns Promise with array of Quiz objects
+ */
+export const getQuizzes = async () => {
+    try {
+      const response = await fetch(`${API_URL}/quizzes`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching active sessions:", error);
+      throw error;
+    }
+  };

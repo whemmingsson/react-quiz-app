@@ -8,6 +8,7 @@ import SessionService from "./services/SessionService.js";
 import UserJoinEventData  from "@common/UserJoinEventData.js";
 import {instrument} from "@socket.io/admin-ui";
 import cors from "cors"; // Add this import for CORS middleware
+import QuizService from "./services/QuizService..js";
 
 const app = express();
 const server = createServer(app);
@@ -44,14 +45,11 @@ app.use(cors({
   credentials: true
 }));
 
-// Handle React routing, return index.html for all other routes, unless client routed
-app.get("*", (_, res) => {
-  res.sendFile(path.join(clientBuildPath, "index.html"));
-});
 
 // Services
 const userService = new UserService();
 const sessionService = new SessionService(); 
+const quizService = new QuizService(); 
 
 // API endpoints
 // API endpoint for client registration
@@ -94,6 +92,7 @@ interface SetUsernameRequestBody {
   clientId: string;
   username: string;
 }
+
 app.post('/api/username', (
   req: express.Request<{}, {}, SetUsernameRequestBody>, 
   res: any) =>{
@@ -123,6 +122,18 @@ app.post('/api/username', (
       message: 'Server error while saving username'
     });
   }
+});
+
+// API endpoint for fetching all saved quizzes
+app.get('/api/quizzes', (req, res) => {
+  console.log("Fetching all quizzes");
+  const quizzes = quizService.getAllQuizzes();
+  res.json(quizzes);
+});
+
+// AFTER all API endpoints, add the catch-all route
+app.get("*", (_, res) => {
+  res.sendFile(path.join(clientBuildPath, "index.html"));
 });
 
 io.on("connection", (socket) => {

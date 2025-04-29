@@ -1,3 +1,4 @@
+import QuizActions from "../components/QuizActions";
 import "../App.css";
 
 const QuizStartPage = () => {
@@ -9,7 +10,9 @@ const QuizStartPage = () => {
 
   return (
     <>
-      <div className="App"> </div>
+      <div className="App">
+        <QuizActions />{" "}
+      </div>
     </>
   );
 };
