@@ -131,6 +131,13 @@ app.get('/api/quizzes', (req, res) => {
   res.json(quizzes);
 });
 
+// API endpoint for fetching all saved quizzes
+app.get('/api/quiz/:id', (req, res) => {
+  console.log("Fetching quiz with id:", req.params.id);
+  const quizzes = quizService.getQuizById(req.params.id);
+  res.json(quizzes);
+});
+
 // AFTER all API endpoints, add the catch-all route
 app.get("*", (_, res) => {
   res.sendFile(path.join(clientBuildPath, "index.html"));

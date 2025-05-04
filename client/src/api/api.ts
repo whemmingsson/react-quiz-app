@@ -108,3 +108,27 @@ export const getQuizzes = async () => {
       throw error;
     }
   };
+
+    /**
+ * Retrieve all quizzes
+ * @returns Promise with array of Quiz objects
+ */
+export const getQuiz = async (id:number) => {
+    try {
+      const response = await fetch(`${API_URL}/quiz/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error(`Error fetching quiz with id ${id} :`, error);
+      throw error;
+    }
+  };

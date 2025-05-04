@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
   
   // Sample Quiz 1: General Knowledge
   const generalKnowledgeQuiz: Quiz = {
-    id: uuidv4(),
+    id:"0",
     name: "General Knowledge Quiz",
     questions: [
       {
@@ -39,7 +39,7 @@ import { v4 as uuidv4 } from "uuid";
   
   // Sample Quiz 2: Programming Basics
   const programmingQuiz: Quiz = {
-    id: uuidv4(),
+    id: "1",
     name: "Programming Basics",
     questions: [
       {
