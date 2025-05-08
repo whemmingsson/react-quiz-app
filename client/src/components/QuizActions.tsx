@@ -1,8 +1,7 @@
-import Session from "@common/session";
-import { useState } from "react";
-import { getActiveSessions, getQuizzes } from "../api/api";
+import { useContext, useState } from "react";
 import styled from "styled-components";
-import Quiz from "@common/Quiz";
+import { QuizContext } from "../context/QuizContext";
+import { purgeServerState } from "../api/api";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -25,13 +24,17 @@ const ButtonsGrid = styled.div`
   }
 `;
 
-const ActionButton = styled.button<{ isActive?: boolean }>`
+const ActionButton = styled.button<{
+  isActive?: boolean;
+  $bgcolor?: string;
+}>`
   padding: 20px;
   font-size: 1.2rem;
   font-weight: bold;
   border: none;
   border-radius: 8px;
-  background-color: ${(props) => (props.isActive ? "#2196f3" : "#e0e0e0")};
+  background-color: ${(props) =>
+    props.$bgcolor ? props.$bgcolor : props.isActive ? "#2196f3" : "#e0e0e0"};
   color: ${(props) => (props.isActive ? "white" : "#333")};
   cursor: pointer;
   transition: all 0.2s ease;
@@ -131,40 +134,22 @@ const QuizActions = () => {
     }
   };
 
-  // Functionality
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-
-  const fetchSessions = async () => {
-    try {
-      const activeSessions = await getActiveSessions();
-      setSessions(activeSessions);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const fetchQuizzes = async () => {
-    try {
-      const quizzes = await getQuizzes();
-      setQuizzes(quizzes);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // Context
+  const { sessions, quizzes, socketActions, clientId, isConnected } =
+    useContext(QuizContext) ?? {};
 
   return (
     <ActionsContainer>
       <ButtonsGrid>
         <ActionButton
           isActive={activeSection === "join"}
-          onClick={() => handleButtonClick("join", fetchSessions)}
+          onClick={() => handleButtonClick("join")}
         >
           Join Quiz
         </ActionButton>
         <ActionButton
           isActive={activeSection === "start"}
-          onClick={() => handleButtonClick("start", fetchQuizzes)}
+          onClick={() => handleButtonClick("start")}
         >
           Start Quiz
         </ActionButton>
@@ -180,6 +165,9 @@ const QuizActions = () => {
         >
           Admin
         </ActionButton>
+        <ActionButton onClick={() => purgeServerState()} $bgcolor="#f44336">
+          ☠️ PURGE ☠️
+        </ActionButton>
       </ButtonsGrid>
 
       {activeSection && (
@@ -194,21 +182,23 @@ const QuizActions = () => {
                   connected.
                 </p>
                 <p>
-                  {sessions.length === 0}
+                  {(sessions ?? []).length === 0}
                   <strong>No active sessions available.</strong>
                 </p>
 
-                {sessions.length > 0 && (
+                {(sessions ?? []).length > 0 && (
                   <>
                     <strong>Active Sessions:</strong>
                     <StyledList>
-                      {sessions.map((session) => (
+                      {(sessions ?? []).map((session) => (
                         <ListItem key={session.id}>
                           <ItemInfo>
                             <ItemTitle>{session.quizName}</ItemTitle>
                             <ItemDetail>Session ID: {session.id}</ItemDetail>
                           </ItemInfo>
-                          <ActionButtonSmall>Join</ActionButtonSmall>
+                          <ActionButtonSmall disabled={!isConnected}>
+                            Join
+                          </ActionButtonSmall>
                         </ListItem>
                       ))}
                     </StyledList>
@@ -224,17 +214,17 @@ const QuizActions = () => {
               <SectionContent>
                 <p>Start a new quiz session from your available quizzes.</p>
 
-                {quizzes.length === 0 && (
+                {(quizzes ?? []).length === 0 && (
                   <p>
                     <strong>No quizzes available.</strong>
                   </p>
                 )}
 
-                {quizzes.length > 0 && (
+                {(quizzes ?? []).length > 0 && (
                   <>
                     <strong>Available Quizzes:</strong>
                     <StyledList>
-                      {quizzes.map((quiz) => (
+                      {(quizzes ?? []).map((quiz) => (
                         <ListItem key={quiz.id}>
                           <ItemInfo>
                             <ItemTitle>{quiz.name}</ItemTitle>
@@ -242,7 +232,18 @@ const QuizActions = () => {
                               {quiz.questions.length} questions
                             </ItemDetail>
                           </ItemInfo>
-                          <ActionButtonSmall>Start</ActionButtonSmall>
+                          <ActionButtonSmall
+                            disabled={!isConnected}
+                            onClick={() => {
+                              console.log("Starting quiz with id", quiz.id);
+                              socketActions?.startSession({
+                                quizId: quiz.id,
+                                clientId: clientId || "",
+                              });
+                            }}
+                          >
+                            Start
+                          </ActionButtonSmall>
                         </ListItem>
                       ))}
                     </StyledList>

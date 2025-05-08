@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { socket } from "../socket";
-import User from "@common/user";
+import User from "@common/User";
 
 interface ServerState {
   users: User[];

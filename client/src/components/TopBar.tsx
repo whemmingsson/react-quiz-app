@@ -73,7 +73,7 @@ const UsernameContainer = styled.div`
 `;
 
 const TopBar = () => {
-  const { clientId, isConnected, setIsConnected } =
+  const { clientId, isConnected, setIsConnected, sessionId, isAdmin } =
     useContext(QuizContext) ?? {};
   const [username, setUsername] = useState<string>("Anonymous");
   const [isSaving, setIsSaving] = useState(false);
@@ -135,6 +135,16 @@ const TopBar = () => {
         <InfoItem>
           <strong>Client ID:</strong> {clientId || "Not assigned"}
         </InfoItem>
+        {sessionId && (
+          <InfoItem>
+            <strong>Session ID:</strong> {sessionId}
+          </InfoItem>
+        )}
+        {sessionId && (
+          <InfoItem>
+            <strong>Role: </strong> {isAdmin ? "Admin" : "Player"}
+          </InfoItem>
+        )}
         <InfoItem>
           <UsernameContainer>
             <UsernameInput
