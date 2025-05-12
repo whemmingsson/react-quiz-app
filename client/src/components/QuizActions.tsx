@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import styled from "styled-components";
 import { QuizContext } from "../context/QuizContext";
 import { purgeServerState } from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -138,6 +139,9 @@ const QuizActions = () => {
   const { sessions, quizzes, socketActions, clientId, isConnected } =
     useContext(QuizContext) ?? {};
 
+  // Enable navigation
+  const navigate = useNavigate();
+
   return (
     <ActionsContainer>
       <ButtonsGrid>
@@ -240,6 +244,7 @@ const QuizActions = () => {
                                 quizId: quiz.id,
                                 clientId: clientId || "",
                               });
+                              navigate(`${clientId}/quiz/${quiz.id}`);
                             }}
                           >
                             Start

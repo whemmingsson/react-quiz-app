@@ -8,10 +8,10 @@ import SessionService from "./services/SessionService.js";
 import { instrument } from "@socket.io/admin-ui";
 import cors from "cors"; // Add this import for CORS middleware
 import QuizService from "./services/QuizService..js";
-import { SessionStarted } from "@common/messages/SessionStarted.js";
-import Session from "@common/Session.js";
-import { UserJoinedSessionData } from "@common/messages/UserJoinedSessionData.js";
-import { MessageKeys } from "@common/messages/MessageKeys.js";
+import { SessionStarted } from "../../common/SessionStarted.js";
+import { UserJoinedSessionData } from "../../common/UserJoinedSessionData.js";
+import { MessageKeys } from "../../common/MessageKeys.js";
+import Session from "../../common/Session.js";
 
 const app = express();
 const server = createServer(app);
@@ -54,6 +54,23 @@ app.use(
 const userService = new UserService();
 const sessionService = new SessionService();
 const quizService = new QuizService();
+
+//Helper interface
+interface HeaderData {
+  clientId: string;
+  sessionId: string;
+}
+
+// Helper function to extract custom headers from http request headers
+const extractHeaderData = (req: express.Request): HeaderData => {
+  const clientId = req.headers["x-client"] as string;
+  const sessionId = req.headers["x-session"] as string;
+
+  return {
+    clientId: clientId || "",
+    sessionId: sessionId || "",
+  };
+};
 
 // API endpoints
 // API endpoint for client registration
@@ -141,8 +158,25 @@ app.get("/api/quizzes", (req, res) => {
 // API endpoint for fetching a quiz by ID
 app.get("/api/quiz/:id", (req, res) => {
   console.log("Fetching quiz with id:", req.params.id);
+  const headerData = extractHeaderData(req);
+
+  if (!headerData.clientId || !headerData.sessionId) {
+    return res.status(400).json({
+      success: false,
+      message: "Both clientId and sessionId are required in headers",
+    });
+  }
+
+  const session = sessionService.getSession(headerData.sessionId);
+  if (!session) {
+    return res.status(404).json({
+      success: false,
+      message: "Session not found. Was it started?",
+    });
+  }
+
   const quizzes = quizService.getQuizById(req.params.id);
-  res.json(quizzes);
+  return res.json(quizzes);
 });
 
 // API endpoint for fetching all active sessions
@@ -227,6 +261,28 @@ io.on("connection", (socket) => {
       callback(null);
       return;
     }
+  });
+
+  socket.on("rejoin-session", (sessionJoinData: SessionStarted, callback) => {
+    console.log("User rejoined session:", sessionJoinData);
+    if (!sessionJoinData.sessionId) {
+      console.error("Session ID is missing");
+      callback(null);
+      return;
+    }
+
+    const session = sessionService.rejoinSession(
+      sessionJoinData.sessionId,
+      sessionJoinData.clientId
+    );
+
+    if (!session) {
+      console.error("Session not found");
+      callback(null);
+      return;
+    }
+
+    callback(session);
   });
 
   // Run when a user requests to start a session

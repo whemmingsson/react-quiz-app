@@ -1,4 +1,4 @@
-import { SessionStarted } from "@common/messages/SessionStarted";
+import { SessionStarted } from "@common/SessionStarted";
 import Quiz from "@common/Quiz";
 import Session from "@common/Session";
 

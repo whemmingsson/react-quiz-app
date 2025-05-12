@@ -25,6 +25,22 @@ class SessionService {
     return session;
   }
 
+  public rejoinSession(sessionId: string, clientId: string) {
+    const session = this.sessions.find((s) => s.id === sessionId);
+    if (session) {
+      const user = session.users.find((u) => u.clientId === clientId);
+      if (user) {
+        return session;
+      } else {
+        console.error("User not found in session");
+        return null;
+      }
+    } else {
+      console.error("Session not found");
+      return null;
+    }
+  }
+
   public addAsPlayer(sessionId: string, user: User): Session | null {
     const session = this.sessions.find((s) => s.id === sessionId);
     if (session) {

@@ -55,6 +55,10 @@ const DisconnectButton = styled(Button)`
   background-color: #f44336;
 `;
 
+const HomeButton = styled(Button)`
+  background-color: #2196f3;
+`;
+
 const UsernameInput = styled.input`
   max-width: 120px;
   padding: 4px;
@@ -125,6 +129,11 @@ const TopBar = () => {
   return (
     <TopBarContainer>
       <InfoSection>
+        <InfoItem>
+          <HomeButton onClick={() => (window.location.href = "/")}>
+            Home
+          </HomeButton>
+        </InfoItem>
         <InfoItem>
           <strong>Status:</strong>{" "}
           {isConnected ? "🟢 Connected" : "🔴 Disconnected"}

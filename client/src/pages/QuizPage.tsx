@@ -24,6 +24,10 @@ const QuizTitle = styled.h1`
   padding-bottom: 8px;
   margin-bottom: 16px;
   border-bottom: 2px solid #2196f3;
+
+  & span {
+    font-size: 0.8rem;
+  }
 `;
 
 const QuizInfo = styled.div`
@@ -90,7 +94,10 @@ const ErrorMessage = styled.div`
 `;
 
 const QuizPage: React.FC = () => {
-  const { quizId } = useParams<{ quizId: string }>();
+  const { quizId, sessionId } = useParams<{
+    quizId: string;
+    sessionId: string;
+  }>();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -132,7 +139,10 @@ const QuizPage: React.FC = () => {
   return (
     <PageContainer>
       <QuizHeader>
-        <QuizTitle>{quiz.name}</QuizTitle>
+        <QuizTitle>
+          {quiz.name}
+          <br /> <span>[{sessionId}]</span>
+        </QuizTitle>
         <QuizInfo>
           <QuizMeta>
             {quiz.questions.length} questions • Created{" "}
