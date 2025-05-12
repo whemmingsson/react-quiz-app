@@ -14,14 +14,20 @@ const ActionsContainer = styled.div`
 
 const ButtonsGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: repeat(5, 1fr); // 5 equal columns for 5 buttons
+  grid-template-rows: 1fr; // Single row
   gap: 16px;
   margin-bottom: 24px;
 
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr); // 3 columns on medium screens
+    grid-template-rows: auto auto;
+    grid-auto-flow: row;
+  }
+
   @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, auto);
+    grid-template-columns: 1fr; // Stack vertically on small screens
+    grid-template-rows: auto;
   }
 `;
 
@@ -29,7 +35,7 @@ const ActionButton = styled.button<{
   isActive?: boolean;
   $bgcolor?: string;
 }>`
-  padding: 20px;
+  padding: 10px;
   font-size: 1.2rem;
   font-weight: bold;
   border: none;
@@ -91,7 +97,9 @@ const ListItem = styled.li`
 `;
 
 const ItemInfo = styled.div`
-  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 `;
 
 const ItemTitle = styled.div`

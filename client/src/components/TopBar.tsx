@@ -135,10 +135,6 @@ const TopBar = () => {
           </HomeButton>
         </InfoItem>
         <InfoItem>
-          <strong>Status:</strong>{" "}
-          {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
-        </InfoItem>
-        <InfoItem>
           <strong>Socket ID:</strong> {socket.id || "Not connected"}
         </InfoItem>
         <InfoItem>
@@ -174,6 +170,10 @@ const TopBar = () => {
       </InfoSection>
 
       <ButtonSection>
+        <InfoItem>
+          <strong>Status:</strong>{" "}
+          {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
+        </InfoItem>
         <ReconnectButton onClick={handleReconnect}>Reconnect</ReconnectButton>
         <DisconnectButton onClick={handleDisconnect}>
           Disconnect
